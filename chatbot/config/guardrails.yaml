@@ -1,0 +1,28 @@
+guards:
+  - name: "prompt_injection"
+    type: "prompt_injection"
+    enabled: true
+    on_fail: "filter"
+    
+  - name: "toxic_language"
+    type: "toxic_language"
+    enabled: true
+    on_fail: "filter"
+    
+  - name: "pii_detection"
+    type: "pii"
+    enabled: true
+    on_fail: "anonymize"
+    
+  - name: "output_validation"
+    type: "output_validation"
+    enabled: true
+    on_fail: "reask"
+
+input_validation:
+  max_length: 2000
+  min_length: 1
+  
+output_validation:
+  max_length: 4000
+  check_relevance: true
