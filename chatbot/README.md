@@ -12,6 +12,21 @@ A secure chatbot implementation using LangGraph for pipeline orchestration, Guar
 
 ## Installation
 
+### Option 1: Docker (Recommended for Testing)
+
+1. Configure environment:
+```bash
+cp .env.example .env
+# Edit .env with your LLM_API_KEY and configuration
+```
+
+2. Run with Docker:
+```bash
+./docker-test.sh
+```
+
+### Option 2: Local Installation
+
 1. Install dependencies:
 ```bash
 pip install -r requirements.txt
