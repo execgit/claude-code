@@ -1,7 +1,7 @@
 import chromadb
 from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Any
-from langchain.schema import Document
+from langchain_core.documents import Document
 from config.settings import settings
 
 class EmbeddingService:
