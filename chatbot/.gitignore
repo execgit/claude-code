@@ -47,6 +47,10 @@ logs/
 # Vector database (generated at runtime)
 data/vectordb/
 
+# certficates
+certs/*.pem
+certs/*.crt
+
 # Temporary files
 *.tmp
 *.temp

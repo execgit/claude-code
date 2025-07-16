@@ -1120,3 +1120,211 @@ Guardrails cannot be used as is, it must be configured first (.guardrailsrc in t
   4. Display clear warnings about security status
 
   The chatbot is now more robust and can handle both scenarios - with and without Guardrails configuration!
+
+> The script has problems with self-hosted LLM servers. Add an option for including a self signed CA certificate and putting the file name into REQUESTS_CA_BUNDLE when running the script.
+
+● I'll add support for self-signed CA certificates for self-hosted LLM servers by adding a CA certificate file option and setting the REQUESTS_CA_BUNDLE environment variable.
+
+● Update(chatbot/config/settings.py)
+  ⎿  Updated chatbot/config/settings.py with 1 addition                                                                    
+       10        model_name: str = os.getenv("LLM_MODEL_NAME", "gpt-4o-mini")
+       11        max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "1000"))
+       12        temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.7"))
+       13 +      ca_cert_path: str = os.getenv("LLM_CA_CERT_PATH", "")  # Path to CA certificate file for self-signed certs
+       14        
+       15        # RAG Configuration
+       16        embedding_model: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
+
+● Write(chatbot/src/utils/ssl_setup.py)
+  ⎿  Wrote 35 lines to chatbot/src/utils/ssl_setup.py                                    
+     import os
+     from pathlib import Path
+     from config.settings import settings
+     def setup_ssl_certificates():
+         """
+         Set up SSL certificates for self-hosted LLM servers.
+         Sets REQUESTS_CA_BUNDLE environment variable if CA certificate path is provided.
+         """
+         if not settings.ca_cert_path:
+     … +25 lines (ctrl+r to expand)
+
+● Update(chatbot/src/pipeline/nodes.py)
+  ⎿  Updated chatbot/src/pipeline/nodes.py with 1 addition                                 
+        6    from src.rag.retrieval import RAGRetriever
+        7    from src.security.guards import SecurityGuards
+        8    from src.utils.logging import setup_logger
+        9 +  from src.utils.ssl_setup import setup_ssl_certificates, get_ssl_verify_setting
+       10    
+       11    logger = setup_logger(__name__)
+       12    
+
+● Update(chatbot/src/pipeline/nodes.py)
+  ⎿  Updated chatbot/src/pipeline/nodes.py with 1 addition                                      
+       13    class LLMClient:
+       14        def __init__(self):
+       15            self.provider = settings.llm_provider
+       16 +          setup_ssl_certificates()  # Set up SSL certificates for self-hosted servers
+       17            self.client = self._create_client()
+       18        
+       19        def _create_client(self):
+
+● Update(chatbot/main.py)
+  ⎿  Updated chatbot/main.py with 1 addition                       
+        9    
+       10    from src.pipeline.graph import ChatbotGraph
+       11    from src.utils.logging import setup_logger
+       12 +  from src.utils.ssl_setup import setup_ssl_certificates
+       13    
+       14    logger = setup_logger(__name__)
+       15    
+
+● Update(chatbot/main.py)
+  ⎿  Updated chatbot/main.py with 3 additions                         
+       20        args = parser.parse_args()
+       21        
+       22        try:
+       23 +          # Set up SSL certificates for self-hosted servers
+       24 +          setup_ssl_certificates()
+       25 +          
+       26            # Initialize chatbot
+       27            chatbot = ChatbotGraph()
+       28            
+
+● Update(chatbot/.env.example)
+  ⎿  Updated chatbot/.env.example with 1 addition                                         
+        5    LLM_MODEL_NAME=gpt-4o-mini
+        6    LLM_MAX_TOKENS=1000
+        7    LLM_TEMPERATURE=0.7
+        8 +  LLM_CA_CERT_PATH=  # Path to CA certificate file for self-signed certificates
+        9    
+       10    # RAG Configuration
+       11    EMBEDDING_MODEL=all-MiniLM-L6-v2
+
+● Update(chatbot/docker-compose.yml)
+  ⎿  Updated chatbot/docker-compose.yml with 1 addition                  
+       11          - LLM_MODEL_NAME=${LLM_MODEL_NAME:-gpt-4o-mini}
+       12          - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-1000}
+       13          - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
+       14 +        - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
+       15          - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+       16          - CHUNK_SIZE=${CHUNK_SIZE:-1000}
+       17          - CHUNK_OVERLAP=${CHUNK_OVERLAP:-200}
+
+● Update(chatbot/docker-compose.yml)
+  ⎿  Updated chatbot/docker-compose.yml with 1 addition                  
+       34          - LLM_PROVIDER=openai
+       35          - LLM_API_KEY=${LLM_API_KEY}
+       36          - LLM_API_BASE_URL=${LLM_API_BASE_URL:-}
+       37 +        - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
+       38          - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+       39          - GUARDRAILS_API_KEY=${GUARDRAILS_API_KEY:-}
+       40          - GUARDRAILS_ID=${GUARDRAILS_ID:-}
+
+● Update(chatbot/docker-compose.yml)
+  ⎿  Updated chatbot/docker-compose.yml with 1 addition                            
+       22          - ./data/documents:/app/data/documents:ro
+       23          - ./data/vectordb:/app/data/vectordb
+       24          - ./logs:/app/logs
+       25 +        - ./certs:/app/certs:ro  # Mount certificate directory if needed
+       26        stdin_open: true
+       27        tty: true
+       28        command: python main.py
+
+● Update(chatbot/docker-compose.yml)
+  ⎿  Error: Found 2 matches of the string to replace, but replace_all is false. To replace all occurrences, set replace_all to true. To replace only one occurrence, please provide more 
+     context to uniquely identify the instance.
+     String:     volumes:
+           - ./data/documents:/app/data/documents:ro
+           - ./data/vectordb:/app/data/vectordb
+
+● Update(chatbot/docker-compose.yml)
+  ⎿  Updated chatbot/docker-compose.yml with 1 addition                            
+       42        volumes:
+       43          - ./data/documents:/app/data/documents:ro
+       44          - ./data/vectordb:/app/data/vectordb
+       45 +        - ./certs:/app/certs:ro  # Mount certificate directory if needed
+       46        command: python main.py --init-kb
+       47        profiles:
+       48          - init
+       49   \ No newline at end of file
+
+● Bash(mkdir -p /workspace/chatbot/certs)
+  ⎿  (No content)
+
+● Write(chatbot/certs/README.md)
+  ⎿  Wrote 29 lines to chatbot/certs/README.md                                                                       
+     # SSL Certificates Directory
+     This directory is for storing SSL certificates needed for self-hosted LLM servers with self-signed certificates.
+     ## Usage
+     1. Place your CA certificate file (e.g., `ca-cert.pem`) in this directory
+     2. Set the `LLM_CA_CERT_PATH` environment variable to point to the certificate file:
+        ```
+        LLM_CA_CERT_PATH=/app/certs/ca-cert.pem
+     … +19 lines (ctrl+r to expand)
+
+● Update(chatbot/README.md)
+  ⎿  Updated chatbot/README.md with 1 addition                                                        
+       68    - `LLM_API_KEY`: Your LLM API key
+       69    - `LLM_API_BASE_URL`: Custom endpoint URL (for private LLMs)
+       70    - `LLM_MODEL_NAME`: Model to use
+       71 +  - `LLM_CA_CERT_PATH`: Optional - Path to CA certificate file for self-signed certificates
+       72    - `EMBEDDING_MODEL`: Sentence transformer model
+       73    - `DOCUMENTS_PATH`: Path to markdown documents
+       74    - `GUARDRAILS_API_KEY`: Optional - Guardrails Hub API key for enhanced security
+
+● Update(chatbot/README.md)
+  ⎿  Updated chatbot/README.md with 13 additions                                                                                           
+        91    
+        92    **Note:** If Guardrails credentials are not provided, the chatbot will run with basic security measures and display warnings.
+        93    
+        94 +  ### Self-Hosted LLM Support
+        95 +  
+        96 +  For self-hosted LLM servers with self-signed certificates:
+        97 +  
+        98 +  1. **Place CA certificate** in the `certs/` directory
+        99 +  2. **Set environment variable**:
+       100 +     ```
+       101 +     LLM_CA_CERT_PATH=/app/certs/ca-cert.pem
+       102 +     ```
+       103 +  3. **The chatbot will automatically**:
+       104 +     - Set `REQUESTS_CA_BUNDLE` environment variable
+       105 +     - Configure SSL verification for your custom endpoint
+       106 +  
+       107    ## Architecture
+       108    
+       109    ```
+
+● Bash(git add chatbot/)
+  ⎿  (No content)
+
+● Bash(git commit -m "Add SSL certificate support for self-hosted LLM servers…)
+  ⎿  [main eb8f1f3] Add SSL certificate support for self-hosted LLM servers
+      10 files changed, 355 insertions(+), 2 deletions(-)
+      create mode 100644 chatbot/certs/README.md
+     … +1 line (ctrl+r to expand)
+
+● ✅ SSL certificate support added for self-hosted LLM servers!
+
+  Key features added:
+  - Environment variable: LLM_CA_CERT_PATH to specify CA certificate file path
+  - Automatic setup: Sets REQUESTS_CA_BUNDLE and CURL_CA_BUNDLE environment variables
+  - Docker integration: Mounts certs/ directory as read-only volume at /app/certs
+  - SSL verification: Configures SSL verification for custom endpoints automatically
+
+  Usage for self-hosted LLMs:
+  1. Place CA certificate in certs/ directory:
+  cp /path/to/your/ca-cert.pem ./certs/
+  2. Set environment variable in .env:
+  LLM_CA_CERT_PATH=/app/certs/ca-cert.pem
+  3. The chatbot automatically:
+    - Sets REQUESTS_CA_BUNDLE environment variable
+    - Configures SSL verification for OpenAI-compatible endpoints
+    - Works with both local and Docker deployments
+
+  Example configuration for self-hosted LLM:
+  LLM_PROVIDER=custom
+  LLM_API_BASE_URL=https://your-llm-server.local:8000/v1
+  LLM_API_KEY=your_api_key
+  LLM_CA_CERT_PATH=/app/certs/ca-cert.pem
+
+  The chatbot now fully supports self-hosted LLM servers with self-signed certificates!
