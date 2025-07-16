@@ -50,3 +50,4 @@ data/vectordb/
 # Temporary files
 *.tmp
 *.temp
+*~

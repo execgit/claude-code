@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     
     # Guardrails
     guardrails_config: str = os.getenv("GUARDRAILS_CONFIG", str(Path(__file__).parent / "guardrails.yaml"))
+    guardrails_api_key: str = os.getenv("GUARDRAILS_API_KEY", "")
+    guardrails_id: str = os.getenv("GUARDRAILS_ID", "")
     
     class Config:
         env_file = ".env"

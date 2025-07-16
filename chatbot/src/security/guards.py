@@ -1,19 +1,39 @@
 import yaml
 from typing import Dict, Any, Optional
-from guardrails import Guard
-from guardrails.validators import (
-    ToxicLanguage,
-    PIIDetection,
-    PromptInjection,
-    ValidLength
-)
 from config.settings import settings
+from src.utils.guardrails_setup import setup_guardrails_config, is_guardrails_configured
+
+try:
+    from guardrails import Guard
+    from guardrails.validators import (
+        ToxicLanguage,
+        PIIDetection,
+        PromptInjection,
+        ValidLength
+    )
+    GUARDRAILS_AVAILABLE = True
+except ImportError:
+    GUARDRAILS_AVAILABLE = False
 
 class SecurityGuards:
     def __init__(self):
         self.config = self._load_config()
+        self.guardrails_enabled = self._setup_guardrails()
         self.input_guard = self._create_input_guard()
         self.output_guard = self._create_output_guard()
+    
+    def _setup_guardrails(self) -> bool:
+        """Set up Guardrails configuration and check if it's available."""
+        if not GUARDRAILS_AVAILABLE:
+            print("⚠️  Guardrails not available. Security features will be limited.")
+            return False
+        
+        if not is_guardrails_configured():
+            if not setup_guardrails_config():
+                print("⚠️  Failed to set up Guardrails. Security features will be limited.")
+                return False
+        
+        return True
     
     def _load_config(self) -> Dict[str, Any]:
         try:
@@ -34,7 +54,10 @@ class SecurityGuards:
             "output_validation": {"max_length": 4000, "check_relevance": True}
         }
     
-    def _create_input_guard(self) -> Guard:
+    def _create_input_guard(self):
+        if not self.guardrails_enabled:
+            return None
+            
         validators = []
         
         # Length validation
@@ -62,7 +85,10 @@ class SecurityGuards:
         
         return Guard.from_pydantic(validators=validators)
     
-    def _create_output_guard(self) -> Guard:
+    def _create_output_guard(self):
+        if not self.guardrails_enabled:
+            return None
+            
         validators = []
         
         # Length validation for output
@@ -78,6 +104,9 @@ class SecurityGuards:
         return Guard.from_pydantic(validators=validators)
     
     def validate_input(self, user_input: str) -> Optional[str]:
+        if not self.guardrails_enabled or not self.input_guard:
+            return user_input  # Pass through if guardrails disabled
+            
         try:
             result = self.input_guard.parse(user_input)
             return result.validated_output
@@ -86,6 +115,9 @@ class SecurityGuards:
             return None
     
     def validate_output(self, output: str) -> Optional[str]:
+        if not self.guardrails_enabled or not self.output_guard:
+            return output  # Pass through if guardrails disabled
+            
         try:
             result = self.output_guard.parse(output)
             return result.validated_output

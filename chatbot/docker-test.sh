@@ -34,7 +34,7 @@ docker build -t llm-chatbot .
 
 # Initialize knowledge base
 echo "📚 Initializing knowledge base..."
-docker-compose --profile init up chatbot-init
+#docker compose --profile init up chatbot-init
 
 # Start the chatbot
 echo "🚀 Starting chatbot..."
@@ -42,4 +42,4 @@ echo "   Type 'quit' or 'exit' to stop"
 echo "   Press Ctrl+C to exit Docker container"
 echo ""
 
-docker-compose up chatbot
+docker compose up chatbot

@@ -70,13 +70,25 @@ python main.py --kb-info
 - `LLM_MODEL_NAME`: Model to use
 - `EMBEDDING_MODEL`: Sentence transformer model
 - `DOCUMENTS_PATH`: Path to markdown documents
+- `GUARDRAILS_API_KEY`: Optional - Guardrails Hub API key for enhanced security
+- `GUARDRAILS_ID`: Optional - Guardrails Hub ID for enhanced security
 
-### Guardrails (config/guardrails.yaml)
-Configure security policies for:
-- Prompt injection detection
-- Toxic language filtering
-- PII detection and anonymization
-- Output validation
+### Guardrails Security (Optional)
+For enhanced security features, you can configure Guardrails:
+
+1. **Get Guardrails Hub API credentials** from [Guardrails Hub](https://hub.guardrailsai.com/)
+2. **Set environment variables** in your `.env` file:
+   ```
+   GUARDRAILS_API_KEY=your_api_key
+   GUARDRAILS_ID=your_id
+   ```
+3. **Configure policies** in `config/guardrails.yaml`:
+   - Prompt injection detection
+   - Toxic language filtering
+   - PII detection and anonymization
+   - Output validation
+
+**Note:** If Guardrails credentials are not provided, the chatbot will run with basic security measures and display warnings.
 
 ## Architecture
 
