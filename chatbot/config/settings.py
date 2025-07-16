@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     model_name: str = os.getenv("LLM_MODEL_NAME", "gpt-4o-mini")
     max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "1000"))
     temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.7"))
+    ca_cert_path: str = os.getenv("LLM_CA_CERT_PATH", "")  # Path to CA certificate file for self-signed certs
     
     # RAG Configuration
     embedding_model: str = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")

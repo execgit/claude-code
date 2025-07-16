@@ -6,12 +6,14 @@ from config.settings import settings
 from src.rag.retrieval import RAGRetriever
 from src.security.guards import SecurityGuards
 from src.utils.logging import setup_logger
+from src.utils.ssl_setup import setup_ssl_certificates, get_ssl_verify_setting
 
 logger = setup_logger(__name__)
 
 class LLMClient:
     def __init__(self):
         self.provider = settings.llm_provider
+        setup_ssl_certificates()  # Set up SSL certificates for self-hosted servers
         self.client = self._create_client()
     
     def _create_client(self):

@@ -68,6 +68,7 @@ python main.py --kb-info
 - `LLM_API_KEY`: Your LLM API key
 - `LLM_API_BASE_URL`: Custom endpoint URL (for private LLMs)
 - `LLM_MODEL_NAME`: Model to use
+- `LLM_CA_CERT_PATH`: Optional - Path to CA certificate file for self-signed certificates
 - `EMBEDDING_MODEL`: Sentence transformer model
 - `DOCUMENTS_PATH`: Path to markdown documents
 - `GUARDRAILS_API_KEY`: Optional - Guardrails Hub API key for enhanced security
@@ -89,6 +90,19 @@ For enhanced security features, you can configure Guardrails:
    - Output validation
 
 **Note:** If Guardrails credentials are not provided, the chatbot will run with basic security measures and display warnings.
+
+### Self-Hosted LLM Support
+
+For self-hosted LLM servers with self-signed certificates:
+
+1. **Place CA certificate** in the `certs/` directory
+2. **Set environment variable**:
+   ```
+   LLM_CA_CERT_PATH=/app/certs/ca-cert.pem
+   ```
+3. **The chatbot will automatically**:
+   - Set `REQUESTS_CA_BUNDLE` environment variable
+   - Configure SSL verification for your custom endpoint
 
 ## Architecture
 

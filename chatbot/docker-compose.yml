@@ -11,6 +11,7 @@ services:
       - LLM_MODEL_NAME=${LLM_MODEL_NAME:-gpt-4o-mini}
       - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-1000}
       - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
+      - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
       - CHUNK_SIZE=${CHUNK_SIZE:-1000}
       - CHUNK_OVERLAP=${CHUNK_OVERLAP:-200}
@@ -21,6 +22,7 @@ services:
       - ./data/documents:/app/data/documents:ro
       - ./data/vectordb:/app/data/vectordb
       - ./logs:/app/logs
+      - ./certs:/app/certs:ro  # Mount certificate directory if needed
     stdin_open: true
     tty: true
     command: python main.py
@@ -33,12 +35,14 @@ services:
       - LLM_PROVIDER=openai
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_API_BASE_URL=${LLM_API_BASE_URL:-}
+      - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
       - GUARDRAILS_API_KEY=${GUARDRAILS_API_KEY:-}
       - GUARDRAILS_ID=${GUARDRAILS_ID:-}
     volumes:
       - ./data/documents:/app/data/documents:ro
       - ./data/vectordb:/app/data/vectordb
+      - ./certs:/app/certs:ro  # Mount certificate directory if needed
     command: python main.py --init-kb
     profiles:
       - init
