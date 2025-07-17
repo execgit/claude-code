@@ -9,7 +9,6 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from src.pipeline.graph import ChatbotGraph
 from src.utils.logging import setup_logger
-from src.utils.ssl_setup import setup_ssl_certificates
 
 logger = setup_logger(__name__)
 
@@ -20,9 +19,6 @@ def main():
     args = parser.parse_args()
     
     try:
-        # Set up SSL certificates for self-hosted servers
-        setup_ssl_certificates()
-        
         # Initialize chatbot
         chatbot = ChatbotGraph()
         
