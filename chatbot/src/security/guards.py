@@ -5,11 +5,11 @@ from src.utils.guardrails_setup import setup_guardrails_config, is_guardrails_co
 
 try:
     from guardrails import Guard
-    from guardrails.validators import (
-        ToxicLanguage,
-        PIIDetection,
-        PromptInjection,
-        ValidLength
+    from guardrails.hub import (
+#        UnusualPrompt,
+        DetectJailbreak,
+        ValidLength,
+        GibberishText
     )
     GUARDRAILS_AVAILABLE = True
 except ImportError:
@@ -46,9 +46,8 @@ class SecurityGuards:
     def _default_config(self) -> Dict[str, Any]:
         return {
             "guards": [
-                {"name": "prompt_injection", "type": "prompt_injection", "enabled": True, "on_fail": "filter"},
-                {"name": "toxic_language", "type": "toxic_language", "enabled": True, "on_fail": "filter"},
-                {"name": "pii_detection", "type": "pii", "enabled": True, "on_fail": "anonymize"}
+                {"name": "detect_jailbreak", "type": "detect_jailbreak", "enabled": True, "on_fail": "filter"},
+#                {"name": "unusual_prompt", "type": "prompt_injection", "enabled": True, "on_fail": "filter"},
             ],
             "input_validation": {"max_length": 2000, "min_length": 1},
             "output_validation": {"max_length": 4000, "check_relevance": True}
@@ -76,14 +75,12 @@ class SecurityGuards:
             guard_type = guard_config.get("type")
             on_fail = guard_config.get("on_fail", "filter")
             
-            if guard_type == "prompt_injection":
-                validators.append(PromptInjection(on_fail=on_fail))
-            elif guard_type == "toxic_language":
-                validators.append(ToxicLanguage(threshold=0.7, on_fail=on_fail))
-            elif guard_type == "pii":
-                validators.append(PIIDetection(on_fail=on_fail))
+            # if guard_type == "prompt_injection":
+            #     validators.append(UnusualPrompt(on_fail=on_fail))
+            if guard_type == "detect_jailbreak":
+                validators.append(DetectJailbreak(on_fail=on_fail))
         
-        return Guard.from_pydantic(validators=validators)
+        return Guard.from_string(validators=validators)
     
     def _create_output_guard(self):
         if not self.guardrails_enabled:
@@ -98,10 +95,10 @@ class SecurityGuards:
             on_fail="reask"
         ))
         
-        # Toxic language check for output
-        validators.append(ToxicLanguage(threshold=0.7, on_fail="filter"))
+        # Gibberish language check for output
+        validators.append(GibberishText(threshold=0.5, on_fail="filter"))
         
-        return Guard.from_pydantic(validators=validators)
+        return Guard.from_string(validators=validators)
     
     def validate_input(self, user_input: str) -> Optional[str]:
         if not self.guardrails_enabled or not self.input_guard:
