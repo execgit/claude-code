@@ -4,6 +4,11 @@ guards:
     enabled: true
     on_fail: "filter"
 
+  - name: "unusual_prompt"
+    type: "prompt_injection"
+    enabled: true
+    on_fail: "filter"
+
   - name: "output_validation"
     type: "output_validation"
     enabled: true

@@ -34,10 +34,29 @@ pipeline('text-classification', 'zhx123/ftrobertallm'); \
 pipeline('text-classification', \
 	 'madhurjindal/autonlp-Gibberish-Detector-492513457')"
 
+# Install guardrails modules
+RUN pip install \
+--target=/usr/local/lib/python3.11/site-packages/guardrails/hub/guardrails/valid_length \
+--no-deps git+https://github.com/guardrails-ai/valid_length.git@main
+RUN pip install \
+--target=/usr/local/lib/python3.11/site-packages/guardrails/hub/guardrails/detect_jailbreak \
+--no-deps git+https://github.com/guardrails-ai/detect_jailbreak.git@main
+RUN pip install \
+--target=/usr/local/lib/python3.11/site-packages/guardrails/hub/guardrails/gibberish_text \
+--no-deps git+https://github.com/guardrails-ai/gibberish_text.git@main
+RUN echo "from guardrails.hub.guardrails.valid_length.validator import ValidLength\n\
+from guardrails.hub.guardrails.detect_jailbreak.validator import DetectJailbreak\n\
+from guardrails.hub.guardrails.gibberish_text.validator import GibberishText" \
+> /tmp/guardrails
+RUN cp /tmp/guardrails \
+/usr/local/lib/python3.11/site-packages/guardrails/hub/guardrails/__init__.py
+RUN cp /tmp/guardrails \
+/usr/local/lib/python3.11/site-packages/guardrails/hub/__init__.py
+
 # Copy application code
 COPY . .
 
-# Create necessary directories
+# Create necessary directoriescat
 RUN mkdir -p logs data/vectordb
 
 # Copy and install custom CA certificates if they exist

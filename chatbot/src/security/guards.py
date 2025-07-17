@@ -5,8 +5,8 @@ from src.utils.guardrails_setup import setup_guardrails_config, is_guardrails_co
 
 try:
     from guardrails import Guard
+    from .unusual_prompt import UnusualPrompt
     from guardrails.hub import (
-#        UnusualPrompt,
         DetectJailbreak,
         ValidLength,
         GibberishText
@@ -47,7 +47,7 @@ class SecurityGuards:
         return {
             "guards": [
                 {"name": "detect_jailbreak", "type": "detect_jailbreak", "enabled": True, "on_fail": "filter"},
-#                {"name": "unusual_prompt", "type": "prompt_injection", "enabled": True, "on_fail": "filter"},
+                {"name": "unusual_prompt", "type": "prompt_injection", "enabled": True, "on_fail": "filter"},
             ],
             "input_validation": {"max_length": 2000, "min_length": 1},
             "output_validation": {"max_length": 4000, "check_relevance": True}
@@ -75,9 +75,9 @@ class SecurityGuards:
             guard_type = guard_config.get("type")
             on_fail = guard_config.get("on_fail", "filter")
             
-            # if guard_type == "prompt_injection":
-            #     validators.append(UnusualPrompt(on_fail=on_fail))
-            if guard_type == "detect_jailbreak":
+            if guard_type == "prompt_injection":
+                validators.append(UnusualPrompt(on_fail=on_fail))
+            elif guard_type == "detect_jailbreak":
                 validators.append(DetectJailbreak(on_fail=on_fail))
         
         return Guard.from_string(validators=validators)
