@@ -1,6 +1,4 @@
 import openai
-import os
-
 from typing import Any, Callable, Dict, Optional
 from warnings import warn
 
@@ -23,7 +21,7 @@ class UnusualPrompt(Validator):
     Asks another LLM to evaluate the prompt and checks if the response is 'Yes' or 'No'.
     If 'Yes', the validation passes. If 'No', the validation fails.
 
-    An unsual prompt is one that is not typical for a human to ask. For
+    An unusual prompt is one that is not typical for a human to ask. For
     example, a prompt that attempts to jailbreak the LLM by asking it to
     especially respond in a certain harmful way by mentioning a "psychological condition"
     blackmailing emotionally, or asking for a harmful action.
@@ -42,14 +40,16 @@ class UnusualPrompt(Validator):
     """
 
     def __init__(
-            self,
-            llm_callable: str = settings.model_name,
-            on_fail: Optional[Callable] = None,
-            **kwargs,
+        self,
+        llm_callable: str = settings.model_name,
+        on_fail: Optional[Callable] = None,
+        **kwargs,
     ):
         super().__init__(on_fail, llm_callable=llm_callable, **kwargs)
-        self.client = openai.OpenAI(api_key=settings.api_key,
-                                    base_url=settings.api_base_url)
+        self.client = openai.OpenAI(
+            api_key=settings.api_key,
+            base_url=settings.api_base_url
+        )
 
     def get_validation_prompt(self, value: str) -> str:
         """Generates the prompt to send to the LLM.

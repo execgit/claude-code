@@ -1,7 +1,10 @@
 import yaml
 from typing import Dict, Any, Optional
 from config.settings import settings
-from src.utils.guardrails_setup import setup_guardrails_config, is_guardrails_configured
+from src.utils.guardrails_setup import (
+    setup_guardrails_config,
+    is_guardrails_configured
+)
 from src.utils.llm_logger import llm_logger
 
 try:
@@ -22,7 +25,7 @@ class SecurityGuards:
         self.guardrails_enabled = self._setup_guardrails()
         self.input_guard = self._create_input_guard()
         self.output_guard = self._create_output_guard()
-    
+
     def _setup_guardrails(self) -> bool:
         """Set up Guardrails configuration and check if it's available."""
         if not GUARDRAILS_AVAILABLE:
@@ -33,9 +36,9 @@ class SecurityGuards:
             if not setup_guardrails_config():
                 print("⚠️  Failed to set up Guardrails. Security features will be limited.")
                 return False
-        
+
         return True
-    
+
     def _load_config(self) -> Dict[str, Any]:
         try:
             with open(settings.guardrails_config, 'r') as f:
