@@ -42,7 +42,7 @@ class LLMClient:
             response_content = response.choices[0].message.content
             
             # Log the LLM interaction
-            prompt_text = "\n".join([msg.get("content", "") for msg in messages])
+            prompt_text = "\n".join([msg.get("content", "") for msg in messages if msg.get("content")])
             
             # Extract token usage if available
             tokens_used = None

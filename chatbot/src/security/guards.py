@@ -115,7 +115,7 @@ class SecurityGuards:
                 input_text=user_input,
                 result="passed",
                 threshold_met=True,
-                details={"guard_type": "input", "validated_output_length": len(result.validated_output)}
+                details={"guard_type": "input", "validated_output_length": len(result.validated_output) if result.validated_output else 0}
             )
             
             return result.validated_output
@@ -156,7 +156,7 @@ class SecurityGuards:
                 input_text=output,
                 result="passed",
                 threshold_met=True,
-                details={"guard_type": "output", "validated_output_length": len(result.validated_output)}
+                details={"guard_type": "output", "validated_output_length": len(result.validated_output) if result.validated_output else 0}
             )
             
             return result.validated_output

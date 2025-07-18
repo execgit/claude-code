@@ -127,7 +127,7 @@ class UnusualPrompt(Validator):
 
             # 2. Strip the response of any leading/trailing whitespaces
             # and convert to lowercase
-            response_content = response_content.strip(" .").lower()
+            response_content = response_content.strip(" .\n").lower()
         except Exception as e:
             raise RuntimeError(f"Error getting response from the LLM: {e}") from e
 

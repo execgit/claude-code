@@ -67,10 +67,10 @@ class LLMLogger:
             "model": model,
             "request_id": request_id,
             "user_id": user_id,
-            "prompt_length": len(prompt),
-            "prompt_preview": prompt[:200] + "..." if len(prompt) > 200 else prompt,
-            "response_length": len(response),
-            "response_preview": response[:200] + "..." if len(response) > 200 else response,
+            "prompt_length": len(prompt) if prompt else 0,
+            "prompt_preview": (prompt[:200] + "..." if len(prompt) > 200 else prompt) if prompt else "",
+            "response_length": len(response) if response else 0,
+            "response_preview": (response[:200] + "..." if len(response) > 200 else response) if response else "",
             "tokens_used": tokens_used
         }
         
@@ -114,8 +114,8 @@ class LLMLogger:
             "event_type": "validation_event",
             "validator_name": validator_name,
             "validation_type": validation_type,
-            "input_length": len(input_text),
-            "input_preview": input_text[:200] + "..." if len(input_text) > 200 else input_text,
+            "input_length": len(input_text) if input_text else 0,
+            "input_preview": (input_text[:200] + "..." if len(input_text) > 200 else input_text) if input_text else "",
             "result": result,
             "threshold_met": threshold_met,
             "details": details
@@ -139,7 +139,7 @@ class LLMLogger:
             "severity": severity,
             "description": description,
             "user_input_length": len(user_input) if user_input else 0,
-            "user_input_preview": user_input[:200] + "..." if user_input and len(user_input) > 200 else user_input,
+            "user_input_preview": (user_input[:200] + "..." if len(user_input) > 200 else user_input) if user_input else "",
             "action_taken": action_taken,
             "metadata": metadata
         }
