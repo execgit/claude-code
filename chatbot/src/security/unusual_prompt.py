@@ -122,7 +122,7 @@ class UnusualPrompt(Validator):
                 prompt=prompt,
                 response=response_content,
                 tokens_used=tokens_used,
-                request_id=f"unusual_prompt_validation"
+                request_id="unusual_prompt_validation"
             )
 
             # 2. Strip the response of any leading/trailing whitespaces

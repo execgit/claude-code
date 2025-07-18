@@ -1,7 +1,5 @@
 import openai
-from typing import Dict, Any, Optional
-from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, SystemMessage
+from typing import Dict, Any
 from config.settings import settings
 from src.rag.retrieval import RAGRetriever
 from src.security.guards import SecurityGuards

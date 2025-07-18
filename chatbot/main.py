@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import sys
-import os
 import argparse
 from pathlib import Path
 
@@ -9,6 +8,7 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 from src.pipeline.graph import ChatbotGraph
 from src.utils.logging import setup_logger
+from src.utils.metrics import token_metrics, security_metrics
 
 logger = setup_logger(__name__)
 
@@ -35,19 +35,17 @@ def main():
         
         if args.kb_info:
             info = chatbot.get_knowledge_base_info()
-            print(f"Knowledge base info:")
+            print("Knowledge base info:")
             print(f"  Documents: {info['document_count']}")
             print(f"  Path: {info['documents_path']}")
             print(f"  Embedding model: {info['embedding_model']}")
             return
         
         if args.usage_report:
-            from src.utils.metrics import token_metrics
             token_metrics.print_usage_report(args.hours)
             return
         
         if args.security_report:
-            from src.utils.metrics import security_metrics
             security_metrics.print_security_report(args.hours)
             return
         

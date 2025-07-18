@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import Dict, Any
 from .embeddings import EmbeddingService
 from .documents import MarkdownDocumentProcessor
 from config.settings import settings

@@ -1,7 +1,6 @@
-import os
 import markdown
 from pathlib import Path
-from typing import List, Dict
+from typing import List
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from config.settings import settings
