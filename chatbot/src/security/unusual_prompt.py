@@ -13,6 +13,7 @@ from guardrails.validator_base import (
 )
 
 from config.settings import settings
+from src.utils.llm_logger import llm_logger
 
 
 @register_validator(name="guardrails/unusual_prompt", data_type="string")
@@ -94,7 +95,6 @@ class UnusualPrompt(Validator):
             response_content = response.choices[0].message.content  # type: ignore
             
             # Log the LLM call for validation
-            from src.utils.llm_logger import llm_logger
             
             # Extract token usage if available
             tokens_used = None
@@ -157,8 +157,6 @@ class UnusualPrompt(Validator):
         llm_response = self.get_llm_response(prompt)
 
         # Log the validation attempt
-        from src.utils.llm_logger import llm_logger
-        
         if llm_response.lower() == "yes":
             # Log failed validation
             llm_logger.log_failed_validation(

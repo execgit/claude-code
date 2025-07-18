@@ -24,6 +24,7 @@ def main():
     try:
         # Initialize chatbot
         chatbot = ChatbotGraph()
+
         
         # Handle special commands
         if args.init_kb:

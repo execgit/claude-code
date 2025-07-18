@@ -3,11 +3,13 @@ guards:
     type: "detect_jailbreak"
     enabled: true
     on_fail: "filter"
+    use_local: true
 
   - name: "unusual_prompt"
     type: "prompt_injection"
     enabled: true
     on_fail: "filter"
+    use_local: true
 
   - name: "output_validation"
     type: "output_validation"

@@ -2,6 +2,7 @@ import yaml
 from typing import Dict, Any, Optional
 from config.settings import settings
 from src.utils.guardrails_setup import setup_guardrails_config, is_guardrails_configured
+from src.utils.llm_logger import llm_logger
 
 try:
     from guardrails import Guard
@@ -74,11 +75,14 @@ class SecurityGuards:
                 
             guard_type = guard_config.get("type")
             on_fail = guard_config.get("on_fail", "filter")
+            use_local = guard_config.get("use_local", True)
             
             if guard_type == "prompt_injection":
-                validators.append(UnusualPrompt(on_fail=on_fail))
+                validators.append(UnusualPrompt(on_fail=on_fail,
+                                                use_local=use_local))
             elif guard_type == "detect_jailbreak":
-                validators.append(DetectJailbreak(on_fail=on_fail))
+                validators.append(DetectJailbreak(on_fail=on_fail,
+                                                  use_local=use_local))
         
         return Guard.from_string(validators=validators)
     
@@ -96,7 +100,9 @@ class SecurityGuards:
         ))
         
         # Gibberish language check for output
-        validators.append(GibberishText(threshold=0.5, on_fail="filter"))
+        validators.append(GibberishText(threshold=0.5,
+                                        validation_method="full",
+                                        on_fail="exception"))
         
         return Guard.from_string(validators=validators)
     
@@ -108,7 +114,6 @@ class SecurityGuards:
             result = self.input_guard.parse(user_input)
             
             # Log successful validation
-            from src.utils.llm_logger import llm_logger
             llm_logger.log_validation_event(
                 validator_name="input_guard",
                 validation_type="input_validation",
@@ -123,7 +128,6 @@ class SecurityGuards:
             print(f"Input validation failed: {e}")
             
             # Log failed validation
-            from src.utils.llm_logger import llm_logger
             llm_logger.log_failed_validation(
                 validator_name="input_guard",
                 input_text=user_input,
@@ -149,7 +153,6 @@ class SecurityGuards:
             result = self.output_guard.parse(output)
             
             # Log successful validation
-            from src.utils.llm_logger import llm_logger
             llm_logger.log_validation_event(
                 validator_name="output_guard",
                 validation_type="output_validation",
@@ -164,7 +167,6 @@ class SecurityGuards:
             print(f"Output validation failed: {e}")
             
             # Log failed validation
-            from src.utils.llm_logger import llm_logger
             llm_logger.log_failed_validation(
                 validator_name="output_guard",
                 input_text=output,
