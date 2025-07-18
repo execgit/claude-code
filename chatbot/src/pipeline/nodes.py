@@ -6,6 +6,7 @@ from config.settings import settings
 from src.rag.retrieval import RAGRetriever
 from src.security.guards import SecurityGuards
 from src.utils.logging import setup_logger
+from src.utils.llm_logger import llm_logger
 
 logger = setup_logger(__name__)
 
@@ -36,9 +37,51 @@ class LLMClient:
                 max_tokens=settings.max_tokens,
                 temperature=settings.temperature
             )
-            return response.choices[0].message.content
+            
+            # Extract response content
+            response_content = response.choices[0].message.content
+            
+            # Log the LLM interaction
+            prompt_text = "\n".join([msg.get("content", "") for msg in messages])
+            
+            # Extract token usage if available
+            tokens_used = None
+            if hasattr(response, 'usage') and response.usage:
+                tokens_used = {
+                    "prompt_tokens": response.usage.prompt_tokens,
+                    "completion_tokens": response.usage.completion_tokens,
+                    "total_tokens": response.usage.total_tokens
+                }
+                
+                # Log token usage separately
+                llm_logger.log_token_usage(
+                    provider=self.provider,
+                    model=settings.model_name,
+                    prompt_tokens=response.usage.prompt_tokens,
+                    completion_tokens=response.usage.completion_tokens,
+                    total_tokens=response.usage.total_tokens,
+                    request_type="chat_completion"
+                )
+            
+            # Log the complete LLM request
+            llm_logger.log_llm_request(
+                provider=self.provider,
+                model=settings.model_name,
+                prompt=prompt_text,
+                response=response_content,
+                tokens_used=tokens_used
+            )
+            
+            return response_content
+            
         except Exception as e:
             logger.error(f"LLM generation failed: {e}")
+            llm_logger.log_security_event(
+                event_type="llm_error",
+                severity="high",
+                description=f"LLM generation failed: {str(e)}",
+                action_taken="fallback_response"
+            )
             return "I apologize, but I'm having trouble generating a response right now."
 
 class ChatbotPipeline:

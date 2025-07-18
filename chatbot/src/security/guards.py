@@ -106,9 +106,39 @@ class SecurityGuards:
             
         try:
             result = self.input_guard.parse(user_input)
+            
+            # Log successful validation
+            from src.utils.llm_logger import llm_logger
+            llm_logger.log_validation_event(
+                validator_name="input_guard",
+                validation_type="input_validation",
+                input_text=user_input,
+                result="passed",
+                threshold_met=True,
+                details={"guard_type": "input", "validated_output_length": len(result.validated_output)}
+            )
+            
             return result.validated_output
         except Exception as e:
             print(f"Input validation failed: {e}")
+            
+            # Log failed validation
+            from src.utils.llm_logger import llm_logger
+            llm_logger.log_failed_validation(
+                validator_name="input_guard",
+                input_text=user_input,
+                failure_reason=str(e)
+            )
+            
+            llm_logger.log_validation_event(
+                validator_name="input_guard",
+                validation_type="input_validation",
+                input_text=user_input,
+                result="failed",
+                threshold_met=False,
+                details={"error": str(e), "guard_type": "input"}
+            )
+            
             return None
     
     def validate_output(self, output: str) -> Optional[str]:
@@ -117,9 +147,39 @@ class SecurityGuards:
             
         try:
             result = self.output_guard.parse(output)
+            
+            # Log successful validation
+            from src.utils.llm_logger import llm_logger
+            llm_logger.log_validation_event(
+                validator_name="output_guard",
+                validation_type="output_validation",
+                input_text=output,
+                result="passed",
+                threshold_met=True,
+                details={"guard_type": "output", "validated_output_length": len(result.validated_output)}
+            )
+            
             return result.validated_output
         except Exception as e:
             print(f"Output validation failed: {e}")
+            
+            # Log failed validation
+            from src.utils.llm_logger import llm_logger
+            llm_logger.log_failed_validation(
+                validator_name="output_guard",
+                input_text=output,
+                failure_reason=str(e)
+            )
+            
+            llm_logger.log_validation_event(
+                validator_name="output_guard",
+                validation_type="output_validation",
+                input_text=output,
+                result="failed",
+                threshold_met=False,
+                details={"error": str(e), "guard_type": "output"}
+            )
+            
             return None
     
     def is_input_safe(self, user_input: str) -> bool:

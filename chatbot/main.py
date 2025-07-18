@@ -16,6 +16,9 @@ def main():
     parser = argparse.ArgumentParser(description="LLM-based chatbot with RAG and guardrails")
     parser.add_argument("--init-kb", action="store_true", help="Initialize knowledge base from documents")
     parser.add_argument("--kb-info", action="store_true", help="Show knowledge base information")
+    parser.add_argument("--usage-report", action="store_true", help="Show token usage report")
+    parser.add_argument("--security-report", action="store_true", help="Show security events report")
+    parser.add_argument("--hours", type=int, default=24, help="Hours back for reports (default: 24)")
     args = parser.parse_args()
     
     try:
@@ -35,6 +38,16 @@ def main():
             print(f"  Documents: {info['document_count']}")
             print(f"  Path: {info['documents_path']}")
             print(f"  Embedding model: {info['embedding_model']}")
+            return
+        
+        if args.usage_report:
+            from src.utils.metrics import token_metrics
+            token_metrics.print_usage_report(args.hours)
+            return
+        
+        if args.security_report:
+            from src.utils.metrics import security_metrics
+            security_metrics.print_security_report(args.hours)
             return
         
         # Main chat loop
