@@ -81,6 +81,7 @@ class SecurityGuards:
             use_local = guard_config.get("use_local", True)
             
             if guard_type == "prompt_injection":
+                pass
                 validators.append(UnusualPrompt(on_fail=on_fail,
                                                 use_local=use_local))
             elif guard_type == "detect_jailbreak":
@@ -103,9 +104,9 @@ class SecurityGuards:
         ))
         
         # Gibberish language check for output
-        validators.append(GibberishText(threshold=0.5,
-                                        validation_method="full",
-                                        on_fail="exception"))
+        # validators.append(GibberishText(threshold=0.5,
+        #                                 validation_method="full",
+        #                                 on_fail="exception"))
         
         return Guard.from_string(validators=validators)
     

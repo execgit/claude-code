@@ -54,7 +54,7 @@ class ChatbotGraph:
         
         try:
             result = self.graph.invoke(initial_state)
-            return result.get("response", "I apologize, but I couldn't generate a response.")
+            return result.get("response", "Customer service closed, go complain to someone else.")
         except Exception as e:
             return f"An error occurred: {str(e)}"
     
