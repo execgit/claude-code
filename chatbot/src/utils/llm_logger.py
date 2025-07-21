@@ -69,9 +69,9 @@ class LLMLogger:
             "request_id": request_id,
             "user_id": user_id,
             "prompt_length": len(prompt) if prompt else 0,
-            "prompt_preview": (prompt[:200] + "..." if len(prompt) > 200 else prompt) if prompt else "",
+            "prompt_preview": prompt if prompt else "",
             "response_length": len(response) if response else 0,
-            "response_preview": (response[:200] + "..." if len(response) > 200 else response) if response else "",
+            "response_preview": response if response else "",
             "tokens_used": tokens_used
         }
 
@@ -84,7 +84,7 @@ class LLMLogger:
                         completion_tokens: int,
                         total_tokens: int,
                         request_type: str = "completion",
-                        cost_estimate: Optional[float] = None):
+                        cost_estimate: Optional[float] = 0):
         """Log token usage for cost tracking and monitoring."""
 
         log_data = {

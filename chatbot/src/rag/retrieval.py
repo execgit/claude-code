@@ -5,12 +5,13 @@ from config.settings import settings
 
 
 class RAGRetriever:
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.embedding_service = EmbeddingService()
         self.document_processor = MarkdownDocumentProcessor()
 
     def initialize_knowledge_base(self) -> None:
-        print("Initializing knowledge base...")
+        self.logger.info("Initializing knowledge base...")
 
         # Clear existing collection
         self.embedding_service.clear_collection()
@@ -20,7 +21,7 @@ class RAGRetriever:
         if documents:
             self.embedding_service.embed_documents(documents)
         else:
-            print("No documents found to process")
+            self.logger.info("No documents found to process")
 
     def retrieve_context(self, query: str) -> str:
         if self.embedding_service.get_collection_count() == 0:

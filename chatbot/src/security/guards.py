@@ -21,7 +21,8 @@ except ImportError:
 
 
 class SecurityGuards:
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.config = self._load_config()
         self.guardrails_enabled = self._setup_guardrails()
         self.input_guard = self._create_input_guard()
@@ -30,12 +31,12 @@ class SecurityGuards:
     def _setup_guardrails(self) -> bool:
         """Set up Guardrails configuration and check if it's available."""
         if not GUARDRAILS_AVAILABLE:
-            print("⚠️  Guardrails not available. Security features will be limited.")
+            self.logger.info("⚠️  Guardrails not available. Security features will be limited.")
             return False
 
         if not is_guardrails_configured():
             if not setup_guardrails_config():
-                print("⚠️  Failed to set up Guardrails. Security features will be limited.")
+                self.logger.info("⚠️  Failed to set up Guardrails. Security features will be limited.")
                 return False
 
         return True
@@ -45,7 +46,7 @@ class SecurityGuards:
             with open(settings.guardrails_config, 'r') as f:
                 return yaml.safe_load(f)
         except FileNotFoundError:
-            print(f"Guardrails config not found: {settings.guardrails_config}")
+            self.logger.info(f"Guardrails config not found: {settings.guardrails_config}")
             return self._default_config()
 
     def _default_config(self) -> Dict[str, Any]:
@@ -130,7 +131,7 @@ class SecurityGuards:
 
             return result.validated_output
         except Exception as e:
-            print(f"Input validation failed: {e}")
+            self.logger.info(f"Input validation failed: {e}")
 
             # Log failed validation
             llm_logger.log_failed_validation(
@@ -169,7 +170,7 @@ class SecurityGuards:
 
             return result.validated_output
         except Exception as e:
-            print(f"Output validation failed: {e}")
+            self.logger.info(f"Output validation failed: {e}")
 
             # Log failed validation
             llm_logger.log_failed_validation(

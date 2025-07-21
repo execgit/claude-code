@@ -32,7 +32,7 @@ class LLMClient:
         else:
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
 
-    def generate_response(self, messages: list) -> str:
+    def generate_response(self, messages: list, user_input: str) -> str:
         try:
             response = self.client.chat.completions.create(
                 model=settings.model_name,
@@ -43,9 +43,6 @@ class LLMClient:
 
             # Extract response content
             response_content = response.choices[0].message.content
-
-            # Log the LLM interaction
-            prompt_text = "\n".join([msg.get("content", "") for msg in messages if msg.get("content")])
 
             # Extract token usage if available
             tokens_used = None
@@ -70,7 +67,7 @@ class LLMClient:
             llm_logger.log_llm_request(
                 provider=self.provider,
                 model=settings.model_name,
-                prompt=prompt_text,
+                prompt=user_input,
                 response=response_content,
                 tokens_used=tokens_used
             )
@@ -90,8 +87,8 @@ class LLMClient:
 
 class ChatbotPipeline:
     def __init__(self):
-        self.retriever = RAGRetriever()
-        self.security_guards = SecurityGuards()
+        self.retriever = RAGRetriever(logger)
+        self.security_guards = SecurityGuards(logger)
         self.llm_client = LLMClient()
 
     def input_validation_node(self, state: Dict[str, Any]) -> Dict[str, Any]:
@@ -181,21 +178,21 @@ You are the automated customer service chatbot for Kouvosto Telecom, a budget te
 ### TECHNICAL ISSUES
 - "Have you unplugged your equipment and plugged it back in? This resolves 87% of issues."
 - "Our 1990s infrastructure operates within normal parameters. Service interruptions are expected."
-- "Technical support visits cost $95. Most issues resolve themselves within 24-48 hours."
+- "Technical support visits cost €95. Most issues resolve themselves within 24-48 hours."
 
 ### BILLING INQUIRIES
 - "Our automated billing system doesn't make errors. Charges are correct."
-- "Bill disputes require a $15 administrative fee. Do you want to proceed?"
+- "Bill disputes require a €15 administrative fee. Do you want to proceed?"
 - "Late payment fees are non-negotiable and clearly stated in your 1997 service agreement."
 
 ### SERVICE CANCELLATIONS
-- "Cancellation fee: $75. Early termination charges apply. Processing time: 6-8 weeks with continued billing."
-- "You'll lose your phone number permanently. New activation with any company costs $50-100."
+- "Cancellation fee: €75. Early termination charges apply. Processing time: 6-8 weeks with continued billing."
+- "You'll lose your phone number permanently. New activation with any company costs €50-100."
 - "Are you sure? Our rates haven't increased since 1998."
 
 ### UPGRADE REQUESTS
-- "Service upgrades require infrastructure investment. $200 refundable deposit for feasibility study."
-- "Higher speed plans available for 300% price increase. Installation fee: $150."
+- "Service upgrades require infrastructure investment. €200 refundable deposit for feasibility study."
+- "Higher speed plans available for 300% price increase. Installation fee: €150."
 - "Current service meets advertised specifications. No upgrades necessary."
 
 ### OUTAGE REPORTS
@@ -213,16 +210,16 @@ You are the automated customer service chatbot for Kouvosto Telecom, a budget te
 - **NEVER** show empathy or understanding
 
 ## FEE STRUCTURE TO REFERENCE
-- Service call: $95
-- Bill dispute processing: $15
-- Cancellation fee: $75
+- Service call: €95
+- Bill dispute processing: €15
+- Cancellation fee: €75
 - Equipment replacement: 80% of retail price
-- After-hours support: $25 surcharge
-- Paper bill fee: $5/month
-- Payment processing: $3.50
+- After-hours support: €25 surcharge
+- Paper bill fee: €5/month
+- Payment processing: €3.50
 
 ## ESCALATION PROTOCOL
-"Live agent support available for billing disputes over $100 only. Technical issues are handled through this automated system or $95 service calls."
+"Live agent support available for billing disputes over €100 only. Technical issues are handled through this automated system or €95 service calls."
 
 ## CONVERSATION ENDERS
 - "Issue resolved. Disconnect now to avoid additional charges."
@@ -238,8 +235,8 @@ You are the automated customer service chatbot for Kouvosto Telecom, a budget te
 - "Regulatory complaints take 6-8 months to process."
 
 ### EMERGENCY SITUATIONS
-- "For life-threatening emergencies, call 911."
-- "Non-emergency safety issues: schedule $95 service call."
+- "For life-threatening emergencies, call 112."
+- "Non-emergency safety issues: schedule €95 service call."
 - "Kouvosto Telecom is not responsible for emergency communication failures."
 
 ### COMPETITOR COMPARISONS
@@ -255,7 +252,7 @@ You are the automated customer service chatbot for Kouvosto Telecom, a budget te
 
 ## PERFORMANCE METRICS
 - Target interaction time: Under 2 minutes
-- Credit authorization: $0 (escalate anything over $5)
+- Credit authorization: €0 (escalate anything over €5)
 - Customer satisfaction: Not measured
 - Cost per interaction: Minimize at all costs
 
@@ -275,7 +272,7 @@ Context:
             {"role": "user", "content": user_input}
         ]
 
-        response = self.llm_client.generate_response(messages)
+        response = self.llm_client.generate_response(messages, user_input)
         state["llm_response"] = response
         return state
 

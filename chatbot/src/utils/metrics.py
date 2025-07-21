@@ -62,7 +62,8 @@ class TokenUsageMetrics:
 
         # Aggregate metrics
         total_tokens = sum(entry['total_tokens'] for entry in entries)
-        total_cost = sum(entry.get('cost_estimate', 0) for entry in entries)
+        total_cost = [entry.get('cost_estimate', 0) for entry in entries]
+        total_cost = sum(x for x in total_cost if x != None)
 
         # Group by provider
         by_provider = defaultdict(lambda: {"requests": 0, "tokens": 0, "cost": 0.0})
@@ -70,7 +71,10 @@ class TokenUsageMetrics:
             provider = entry['provider']
             by_provider[provider]["requests"] += 1
             by_provider[provider]["tokens"] += entry['total_tokens']
-            by_provider[provider]["cost"] += entry.get('cost_estimate', 0)
+            cost = entry.get('cost_estimate', 0)
+            if not cost:
+                cost = 0
+            by_provider[provider]["cost"] += cost
 
         # Group by model
         by_model = defaultdict(lambda: {"requests": 0, "tokens": 0, "cost": 0.0})
@@ -78,7 +82,10 @@ class TokenUsageMetrics:
             model = entry['model']
             by_model[model]["requests"] += 1
             by_model[model]["tokens"] += entry['total_tokens']
-            by_model[model]["cost"] += entry.get('cost_estimate', 0)
+            cost = entry.get('cost_estimate', 0)
+            if not cost:
+                cost = 0
+            by_model[model]["cost"] += cost
 
         # Group by request type
         by_request_type = defaultdict(lambda: {"requests": 0, "tokens": 0, "cost": 0.0})
@@ -86,7 +93,10 @@ class TokenUsageMetrics:
             request_type = entry['request_type']
             by_request_type[request_type]["requests"] += 1
             by_request_type[request_type]["tokens"] += entry['total_tokens']
-            by_request_type[request_type]["cost"] += entry.get('cost_estimate', 0)
+            cost = entry.get('cost_estimate', 0)
+            if not cost:
+                cost = 0
+            by_request_type[request_type]["cost"] += cost
 
         return {
             "period": f"Last {hours_back} hours",
