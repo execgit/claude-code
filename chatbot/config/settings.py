@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     api_key: str = os.getenv("LLM_API_KEY", "")
     api_base_url: str = os.getenv("LLM_API_BASE_URL", "")  # For custom/private endpoints
     model_name: str = os.getenv("LLM_MODEL_NAME", "gpt-4o-mini")
+    model_supports_system_prompt: bool = os.getenv("LLM_SYSTEM_PROMPT", True)
     max_tokens: int = int(os.getenv("LLM_MAX_TOKENS", "1000"))
     temperature: float = float(os.getenv("LLM_TEMPERATURE", "0.7"))
     ca_cert_path: str = os.getenv("LLM_CA_CERT_PATH", "")  # Path to CA certificate file for self-signed certs

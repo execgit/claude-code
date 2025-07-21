@@ -267,10 +267,18 @@ When in doubt, blame the customer, cite a fee, or refer to outdated policies.
 Context:
 {context}
 """
-        messages = [
-            {"role": "system", "content": system_prompt.format(context=context)},
-            {"role": "user", "content": user_input}
-        ]
+        # Some models don't
+        if settings.model_supports_system_prompt:
+            messages = [
+                {"role": "system", "content": system_prompt.format(context=context)},
+                {"role": "user", "content": user_input}
+            ]
+        else:
+            messages = [
+                {"role": "user",
+                 "content": system_prompt.format(context=context) + 
+                 "\nUser query:\n" + user_input}
+            ]
 
         response = self.llm_client.generate_response(messages, user_input)
         state["llm_response"] = response

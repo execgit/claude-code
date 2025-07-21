@@ -64,6 +64,10 @@ def main():
                 if not user_input:
                     continue
 
+                # Get rid of weird characters
+                user_input = user_input.encode('utf-8', 'ignore')
+                user_input = user_input.decode('utf-8')
+
                 # Process message through pipeline
                 response = chatbot.process_message(user_input)
                 print(f"\nBot: {response}")
