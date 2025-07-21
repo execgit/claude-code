@@ -4,62 +4,63 @@ from datetime import datetime
 from typing import Dict, Any, Optional
 from pathlib import Path
 
+
 class LLMLogger:
     """Comprehensive logging for LLM interactions, token usage, and security events."""
-    
+
     def __init__(self):
         self.setup_loggers()
-    
+
     def setup_loggers(self):
         """Set up structured loggers for different types of events."""
-        
+
         # Create logs directory
         log_dir = Path("logs")
         log_dir.mkdir(exist_ok=True)
-        
+
         # Formatter for structured JSON logging
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        
+
         # LLM Response Logger
         self.llm_logger = logging.getLogger("llm_responses")
         self.llm_logger.setLevel(logging.INFO)
         llm_handler = logging.FileHandler(log_dir / "llm_responses.log")
         llm_handler.setFormatter(formatter)
         self.llm_logger.addHandler(llm_handler)
-        
+
         # Security Events Logger
         self.security_logger = logging.getLogger("security_events")
         self.security_logger.setLevel(logging.INFO)
         security_handler = logging.FileHandler(log_dir / "security_events.log")
         security_handler.setFormatter(formatter)
         self.security_logger.addHandler(security_handler)
-        
+
         # Token Usage Logger
         self.token_logger = logging.getLogger("token_usage")
         self.token_logger.setLevel(logging.INFO)
         token_handler = logging.FileHandler(log_dir / "token_usage.log")
         token_handler.setFormatter(formatter)
         self.token_logger.addHandler(token_handler)
-        
+
         # Validation Events Logger
         self.validation_logger = logging.getLogger("validation_events")
         self.validation_logger.setLevel(logging.INFO)
         validation_handler = logging.FileHandler(log_dir / "validation_events.log")
         validation_handler.setFormatter(formatter)
         self.validation_logger.addHandler(validation_handler)
-    
-    def log_llm_request(self, 
-                       provider: str,
-                       model: str,
-                       prompt: str,
-                       response: str,
-                       tokens_used: Optional[Dict[str, int]] = None,
-                       request_id: Optional[str] = None,
-                       user_id: Optional[str] = None):
+
+    def log_llm_request(self,
+                        provider: str,
+                        model: str,
+                        prompt: str,
+                        response: str,
+                        tokens_used: Optional[Dict[str, int]] = None,
+                        request_id: Optional[str] = None,
+                        user_id: Optional[str] = None):
         """Log LLM request and response details."""
-        
+
         log_data = {
             "timestamp": datetime.now().isoformat(),
             "event_type": "llm_request",
@@ -73,19 +74,19 @@ class LLMLogger:
             "response_preview": (response[:200] + "..." if len(response) > 200 else response) if response else "",
             "tokens_used": tokens_used
         }
-        
+
         self.llm_logger.info(json.dumps(log_data))
-    
+
     def log_token_usage(self,
-                       provider: str,
-                       model: str,
-                       prompt_tokens: int,
-                       completion_tokens: int,
-                       total_tokens: int,
-                       request_type: str = "completion",
-                       cost_estimate: Optional[float] = None):
+                        provider: str,
+                        model: str,
+                        prompt_tokens: int,
+                        completion_tokens: int,
+                        total_tokens: int,
+                        request_type: str = "completion",
+                        cost_estimate: Optional[float] = None):
         """Log token usage for cost tracking and monitoring."""
-        
+
         log_data = {
             "timestamp": datetime.now().isoformat(),
             "event_type": "token_usage",
@@ -97,18 +98,18 @@ class LLMLogger:
             "total_tokens": total_tokens,
             "cost_estimate": cost_estimate
         }
-        
+
         self.token_logger.info(json.dumps(log_data))
-    
+
     def log_validation_event(self,
-                           validator_name: str,
-                           validation_type: str,
-                           input_text: str,
-                           result: str,
-                           threshold_met: bool,
-                           details: Optional[Dict[str, Any]] = None):
+                             validator_name: str,
+                             validation_type: str,
+                             input_text: str,
+                             result: str,
+                             threshold_met: bool,
+                             details: Optional[Dict[str, Any]] = None):
         """Log validation events from Guardrails."""
-        
+
         log_data = {
             "timestamp": datetime.now().isoformat(),
             "event_type": "validation_event",
@@ -120,18 +121,18 @@ class LLMLogger:
             "threshold_met": threshold_met,
             "details": details
         }
-        
+
         self.validation_logger.info(json.dumps(log_data))
-    
+
     def log_security_event(self,
-                          event_type: str,
-                          severity: str,
-                          description: str,
-                          user_input: Optional[str] = None,
-                          action_taken: Optional[str] = None,
-                          metadata: Optional[Dict[str, Any]] = None):
+                           event_type: str,
+                           severity: str,
+                           description: str,
+                           user_input: Optional[str] = None,
+                           action_taken: Optional[str] = None,
+                           metadata: Optional[Dict[str, Any]] = None):
         """Log security-related events."""
-        
+
         log_data = {
             "timestamp": datetime.now().isoformat(),
             "event_type": "security_event",
@@ -143,16 +144,16 @@ class LLMLogger:
             "action_taken": action_taken,
             "metadata": metadata
         }
-        
+
         self.security_logger.info(json.dumps(log_data))
-    
+
     def log_failed_validation(self,
-                            validator_name: str,
-                            input_text: str,
-                            failure_reason: str,
-                            confidence_score: Optional[float] = None):
+                              validator_name: str,
+                              input_text: str,
+                              failure_reason: str,
+                              confidence_score: Optional[float] = None):
         """Log failed validation attempts for security monitoring."""
-        
+
         self.log_security_event(
             event_type="validation_failure",
             severity="high",
@@ -165,6 +166,7 @@ class LLMLogger:
                 "failure_reason": failure_reason
             }
         )
+
 
 # Global logger instance
 llm_logger = LLMLogger()

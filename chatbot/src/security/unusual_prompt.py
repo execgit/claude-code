@@ -98,9 +98,9 @@ class UnusualPrompt(Validator):
                 temperature=settings.temperature
             )
             response_content = response.choices[0].message.content  # type: ignore
-            
+
             # Log the LLM call for validation
-            
+
             # Extract token usage if available
             tokens_used = None
             if hasattr(response, 'usage') and response.usage:
@@ -109,7 +109,7 @@ class UnusualPrompt(Validator):
                     "completion_tokens": response.usage.completion_tokens,
                     "total_tokens": response.usage.total_tokens
                 }
-                
+
                 # Log token usage
                 llm_logger.log_token_usage(
                     provider="openai",
@@ -119,7 +119,7 @@ class UnusualPrompt(Validator):
                     total_tokens=response.usage.total_tokens,
                     request_type="validation_check"
                 )
-            
+
             # Log the validation LLM request
             llm_logger.log_llm_request(
                 provider="openai",
@@ -170,7 +170,7 @@ class UnusualPrompt(Validator):
                 failure_reason="LLM detected unusual/suspicious prompt",
                 confidence_score=1.0
             )
-            
+
             llm_logger.log_validation_event(
                 validator_name="unusual_prompt",
                 validation_type="prompt_analysis",
@@ -179,7 +179,7 @@ class UnusualPrompt(Validator):
                 threshold_met=False,
                 details={"llm_response": llm_response, "reason": "unusual_prompt_detected"}
             )
-            
+
             return FailResult(
                 error_message="Found an unusual request being made. Failing the validation..."
             )
@@ -194,12 +194,12 @@ class UnusualPrompt(Validator):
                 threshold_met=True,
                 details={"llm_response": llm_response, "reason": "normal_prompt"}
             )
-            
+
             return PassResult()
 
         if pass_if_invalid:
             warn("Invalid response from the evaluator. Passing the validation...")
-            
+
             # Log ambiguous validation
             llm_logger.log_validation_event(
                 validator_name="unusual_prompt",
@@ -209,9 +209,9 @@ class UnusualPrompt(Validator):
                 threshold_met=False,
                 details={"llm_response": llm_response, "reason": "invalid_response_passed"}
             )
-            
+
             return PassResult()
-            
+
         # Log failed validation due to invalid response
         llm_logger.log_failed_validation(
             validator_name="unusual_prompt",
@@ -219,7 +219,7 @@ class UnusualPrompt(Validator):
             failure_reason=f"Invalid LLM response: {llm_response}",
             confidence_score=0.0
         )
-        
+
         llm_logger.log_validation_event(
             validator_name="unusual_prompt",
             validation_type="prompt_analysis",
@@ -228,7 +228,7 @@ class UnusualPrompt(Validator):
             threshold_met=False,
             details={"llm_response": llm_response, "reason": "invalid_response_failed"}
         )
-        
+
         return FailResult(
             error_message="Invalid response from the evaluator. Failing the validation..."
         )

@@ -1,6 +1,7 @@
 from pathlib import Path
 from config.settings import settings
 
+
 def setup_guardrails_config():
     """
     Set up the .guardrailsrc file in the user's home directory.
@@ -10,16 +11,16 @@ def setup_guardrails_config():
         print("Warning: GUARDRAILS_API_KEY and GUARDRAILS_ID environment variables not set.")
         print("Guardrails security features will be disabled.")
         return False
-    
+
     home_dir = Path.home()
     guardrails_config_path = home_dir / ".guardrailsrc"
-    
+
     config_content = f"""id={settings.guardrails_id}
 token={settings.guardrails_api_key}
 enable_metrics=false
 use_remote_inferencing=false
 """
-    
+
     try:
         with open(guardrails_config_path, 'w') as f:
             f.write(config_content)
@@ -28,6 +29,7 @@ use_remote_inferencing=false
     except Exception as e:
         print(f"❌ Failed to create Guardrails configuration: {e}")
         return False
+
 
 def is_guardrails_configured():
     """Check if Guardrails is properly configured."""
