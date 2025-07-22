@@ -42,5 +42,4 @@ echo "   Type 'quit' or 'exit' to stop"
 echo "   Press Ctrl+C to exit Docker container"
 echo ""
 
-#docker compose run --rm chatbot python3 main.py
-docker compose run --rm chatbot /bin/bash
+docker compose run --rm chatbot python3 main.py
