@@ -63,7 +63,7 @@ class TokenUsageMetrics:
         # Aggregate metrics
         total_tokens = sum(entry['total_tokens'] for entry in entries)
         total_cost = [entry.get('cost_estimate', 0) for entry in entries]
-        total_cost = sum(x for x in total_cost if x != None)
+        total_cost = sum(x for x in total_cost if x is not None)
 
         # Group by provider
         by_provider = defaultdict(lambda: {"requests": 0, "tokens": 0, "cost": 0.0})
