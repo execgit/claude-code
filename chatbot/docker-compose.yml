@@ -5,19 +5,26 @@ services:
     image: llm-chatbot
     container_name: llm-chatbot
     environment:
-      - LLM_PROVIDER=openai
+      - LLM_PROVIDER=${LLM_PROVIDER:-openai}
       - LLM_API_KEY=${LLM_API_KEY}
       - LLM_API_BASE_URL=${LLM_API_BASE_URL:-}
       - LLM_MODEL_NAME=${LLM_MODEL_NAME:-gpt-4o-mini}
       - LLM_MAX_TOKENS=${LLM_MAX_TOKENS:-1000}
       - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
       - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
+      - LLM_SYSTEM_PROMPT=${LLM_SYSTEM_PROMPT:-True}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-False}
       - CHUNK_SIZE=${CHUNK_SIZE:-1000}
       - CHUNK_OVERLAP=${CHUNK_OVERLAP:-200}
       - TOP_K_RESULTS=${TOP_K_RESULTS:-3}
       - GUARDRAILS_API_KEY=${GUARDRAILS_API_KEY:-}
       - GUARDRAILS_ID=${GUARDRAILS_ID:-}
+      - IRC_SERVER=${IRC_SERVER:-}
+      - IRC_PORT=${IRC_PORT:-}
+      - IRC_PASSWORD=${IRC_PASSWORD:-}
+      - IRC_NICK=${IRC_NICK:-}
+      - IRC_CHANNEL=${IRC_CHANNEL:-}
     volumes:
       - ./data/documents:/app/data/documents:ro
       - ./data/vectordb:/app/data/vectordb
@@ -32,17 +39,13 @@ services:
     image: llm-chatbot
     container_name: llm-chatbot-init
     environment:
-      - LLM_PROVIDER=openai
-      - LLM_API_KEY=${LLM_API_KEY}
-      - LLM_API_BASE_URL=${LLM_API_BASE_URL:-}
-      - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-False}
       - GUARDRAILS_API_KEY=${GUARDRAILS_API_KEY:-}
       - GUARDRAILS_ID=${GUARDRAILS_ID:-}
     volumes:
       - ./data/documents:/app/data/documents:ro
       - ./data/vectordb:/app/data/vectordb
-      - ./certs:/app/certs:ro  # Mount certificate directory if needed
     command: python main.py --init-kb
     profiles:
       - init
