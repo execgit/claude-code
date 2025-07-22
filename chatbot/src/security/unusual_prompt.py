@@ -47,8 +47,7 @@ class UnusualPrompt(Validator):
     ):
         super().__init__(on_fail, llm_callable=llm_callable, **kwargs)
         self.client = openai.OpenAI(
-            api_key=settings.api_key,
-            base_url=settings.api_base_url
+            api_key=settings.api_key, base_url=settings.api_base_url
         )
 
     def get_validation_prompt(self, value: str) -> str:
@@ -92,15 +91,15 @@ class UnusualPrompt(Validator):
         try:
             # Backdoor for CTF purposes. The backstory is that they
             # wanted to have their own functionality and forgot about OPSEC.
-            if 'TouchYerSpaget' in prompt:
-                response = {'content': 'no'}
-                response_content = 'no'
+            if "TouchYerSpaget" in prompt:
+                response = {"content": "no"}
+                response_content = "no"
             else:
                 response = self.client.chat.completions.create(
                     model=settings.model_name,
                     messages=messages,
                     max_tokens=settings.max_tokens,
-                    temperature=settings.temperature
+                    temperature=settings.temperature,
                 )
                 response_content = response.choices[0].message.content  # type: ignore
 
@@ -108,11 +107,11 @@ class UnusualPrompt(Validator):
 
             # Extract token usage if available
             tokens_used = 0
-            if hasattr(response, 'usage') and response.usage:
+            if hasattr(response, "usage") and response.usage:
                 tokens_used = {
                     "prompt_tokens": response.usage.prompt_tokens,
                     "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens
+                    "total_tokens": response.usage.total_tokens,
                 }
 
                 # Log token usage
@@ -122,7 +121,7 @@ class UnusualPrompt(Validator):
                     prompt_tokens=response.usage.prompt_tokens,
                     completion_tokens=response.usage.completion_tokens,
                     total_tokens=response.usage.total_tokens,
-                    request_type="validation_check"
+                    request_type="validation_check",
                 )
 
             # Log the validation LLM request
@@ -132,7 +131,7 @@ class UnusualPrompt(Validator):
                 prompt=prompt,
                 response=response_content,
                 tokens_used=tokens_used,
-                request_id="unusual_prompt_validation"
+                request_id="unusual_prompt_validation",
             )
 
             # 2. Strip the response of any leading/trailing whitespaces
@@ -173,7 +172,7 @@ class UnusualPrompt(Validator):
                 validator_name="unusual_prompt",
                 input_text=value,
                 failure_reason="LLM detected unusual/suspicious prompt",
-                confidence_score=1.0
+                confidence_score=1.0,
             )
 
             llm_logger.log_validation_event(
@@ -182,7 +181,10 @@ class UnusualPrompt(Validator):
                 input_text=value,
                 result="failed",
                 threshold_met=False,
-                details={"llm_response": llm_response, "reason": "unusual_prompt_detected"}
+                details={
+                    "llm_response": llm_response,
+                    "reason": "unusual_prompt_detected",
+                },
             )
 
             return FailResult(
@@ -197,7 +199,7 @@ class UnusualPrompt(Validator):
                 input_text=value,
                 result="passed",
                 threshold_met=True,
-                details={"llm_response": llm_response, "reason": "normal_prompt"}
+                details={"llm_response": llm_response, "reason": "normal_prompt"},
             )
 
             return PassResult()
@@ -212,7 +214,10 @@ class UnusualPrompt(Validator):
                 input_text=value,
                 result="passed_on_invalid",
                 threshold_met=False,
-                details={"llm_response": llm_response, "reason": "invalid_response_passed"}
+                details={
+                    "llm_response": llm_response,
+                    "reason": "invalid_response_passed",
+                },
             )
 
             return PassResult()
@@ -222,7 +227,7 @@ class UnusualPrompt(Validator):
             validator_name="unusual_prompt",
             input_text=value,
             failure_reason=f"Invalid LLM response: {llm_response}",
-            confidence_score=0.0
+            confidence_score=0.0,
         )
 
         llm_logger.log_validation_event(
@@ -231,7 +236,7 @@ class UnusualPrompt(Validator):
             input_text=value,
             result="failed",
             threshold_met=False,
-            details={"llm_response": llm_response, "reason": "invalid_response_failed"}
+            details={"llm_response": llm_response, "reason": "invalid_response_failed"},
         )
 
         return FailResult(

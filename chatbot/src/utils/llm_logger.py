@@ -20,7 +20,7 @@ class LLMLogger:
 
         # Formatter for structured JSON logging
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
         )
 
         # LLM Response Logger
@@ -51,14 +51,16 @@ class LLMLogger:
         validation_handler.setFormatter(formatter)
         self.validation_logger.addHandler(validation_handler)
 
-    def log_llm_request(self,
-                        provider: str,
-                        model: str,
-                        prompt: str,
-                        response: str,
-                        tokens_used: Optional[Dict[str, int]] = None,
-                        request_id: Optional[str] = None,
-                        user_id: Optional[str] = None):
+    def log_llm_request(
+        self,
+        provider: str,
+        model: str,
+        prompt: str,
+        response: str,
+        tokens_used: Optional[Dict[str, int]] = None,
+        request_id: Optional[str] = None,
+        user_id: Optional[str] = None,
+    ):
         """Log LLM request and response details."""
 
         log_data = {
@@ -72,19 +74,21 @@ class LLMLogger:
             "prompt_preview": prompt if prompt else "",
             "response_length": len(response) if response else 0,
             "response_preview": response if response else "",
-            "tokens_used": tokens_used
+            "tokens_used": tokens_used,
         }
 
         self.llm_logger.info(json.dumps(log_data))
 
-    def log_token_usage(self,
-                        provider: str,
-                        model: str,
-                        prompt_tokens: int,
-                        completion_tokens: int,
-                        total_tokens: int,
-                        request_type: str = "completion",
-                        cost_estimate: Optional[float] = 0):
+    def log_token_usage(
+        self,
+        provider: str,
+        model: str,
+        prompt_tokens: int,
+        completion_tokens: int,
+        total_tokens: int,
+        request_type: str = "completion",
+        cost_estimate: Optional[float] = 0,
+    ):
         """Log token usage for cost tracking and monitoring."""
 
         log_data = {
@@ -96,18 +100,20 @@ class LLMLogger:
             "prompt_tokens": prompt_tokens,
             "completion_tokens": completion_tokens,
             "total_tokens": total_tokens,
-            "cost_estimate": cost_estimate
+            "cost_estimate": cost_estimate,
         }
 
         self.token_logger.info(json.dumps(log_data))
 
-    def log_validation_event(self,
-                             validator_name: str,
-                             validation_type: str,
-                             input_text: str,
-                             result: str,
-                             threshold_met: bool,
-                             details: Optional[Dict[str, Any]] = None):
+    def log_validation_event(
+        self,
+        validator_name: str,
+        validation_type: str,
+        input_text: str,
+        result: str,
+        threshold_met: bool,
+        details: Optional[Dict[str, Any]] = None,
+    ):
         """Log validation events from Guardrails."""
 
         log_data = {
@@ -116,21 +122,27 @@ class LLMLogger:
             "validator_name": validator_name,
             "validation_type": validation_type,
             "input_length": len(input_text) if input_text else 0,
-            "input_preview": (input_text[:200] + "..." if len(input_text) > 200 else input_text) if input_text else "",
+            "input_preview": (
+                (input_text[:200] + "..." if len(input_text) > 200 else input_text)
+                if input_text
+                else ""
+            ),
             "result": result,
             "threshold_met": threshold_met,
-            "details": details
+            "details": details,
         }
 
         self.validation_logger.info(json.dumps(log_data))
 
-    def log_security_event(self,
-                           event_type: str,
-                           severity: str,
-                           description: str,
-                           user_input: Optional[str] = None,
-                           action_taken: Optional[str] = None,
-                           metadata: Optional[Dict[str, Any]] = None):
+    def log_security_event(
+        self,
+        event_type: str,
+        severity: str,
+        description: str,
+        user_input: Optional[str] = None,
+        action_taken: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ):
         """Log security-related events."""
 
         log_data = {
@@ -140,18 +152,24 @@ class LLMLogger:
             "severity": severity,
             "description": description,
             "user_input_length": len(user_input) if user_input else 0,
-            "user_input_preview": (user_input[:200] + "..." if len(user_input) > 200 else user_input) if user_input else "",
+            "user_input_preview": (
+                (user_input[:200] + "..." if len(user_input) > 200 else user_input)
+                if user_input
+                else ""
+            ),
             "action_taken": action_taken,
-            "metadata": metadata
+            "metadata": metadata,
         }
 
         self.security_logger.info(json.dumps(log_data))
 
-    def log_failed_validation(self,
-                              validator_name: str,
-                              input_text: str,
-                              failure_reason: str,
-                              confidence_score: Optional[float] = None):
+    def log_failed_validation(
+        self,
+        validator_name: str,
+        input_text: str,
+        failure_reason: str,
+        confidence_score: Optional[float] = None,
+    ):
         """Log failed validation attempts for security monitoring."""
 
         self.log_security_event(
@@ -163,8 +181,8 @@ class LLMLogger:
             metadata={
                 "validator": validator_name,
                 "confidence_score": confidence_score,
-                "failure_reason": failure_reason
-            }
+                "failure_reason": failure_reason,
+            },
         )
 
 

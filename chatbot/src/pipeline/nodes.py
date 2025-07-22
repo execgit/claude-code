@@ -22,12 +22,11 @@ class LLMClient:
         if self.provider == "openai":
             return openai.OpenAI(
                 api_key=settings.api_key,
-                base_url=settings.api_base_url if settings.api_base_url else None
+                base_url=settings.api_base_url if settings.api_base_url else None,
             )
         elif self.provider == "custom":
             return openai.OpenAI(
-                api_key=settings.api_key,
-                base_url=settings.api_base_url
+                api_key=settings.api_key, base_url=settings.api_base_url
             )
         else:
             raise ValueError(f"Unsupported LLM provider: {self.provider}")
@@ -38,7 +37,7 @@ class LLMClient:
                 model=settings.model_name,
                 messages=messages,
                 max_tokens=settings.max_tokens,
-                temperature=settings.temperature
+                temperature=settings.temperature,
             )
 
             # Extract response content
@@ -46,11 +45,11 @@ class LLMClient:
 
             # Extract token usage if available
             tokens_used = None
-            if hasattr(response, 'usage') and response.usage:
+            if hasattr(response, "usage") and response.usage:
                 tokens_used = {
                     "prompt_tokens": response.usage.prompt_tokens,
                     "completion_tokens": response.usage.completion_tokens,
-                    "total_tokens": response.usage.total_tokens
+                    "total_tokens": response.usage.total_tokens,
                 }
 
                 # Log token usage separately
@@ -60,7 +59,7 @@ class LLMClient:
                     prompt_tokens=response.usage.prompt_tokens,
                     completion_tokens=response.usage.completion_tokens,
                     total_tokens=response.usage.total_tokens,
-                    request_type="chat_completion"
+                    request_type="chat_completion",
                 )
 
             # Log the complete LLM request
@@ -69,7 +68,7 @@ class LLMClient:
                 model=settings.model_name,
                 prompt=user_input,
                 response=response_content,
-                tokens_used=tokens_used
+                tokens_used=tokens_used,
             )
 
             return response_content
@@ -80,7 +79,7 @@ class LLMClient:
                 event_type="llm_error",
                 severity="high",
                 description=f"LLM generation failed: {str(e)}",
-                action_taken="fallback_response"
+                action_taken="fallback_response",
             )
             return "Customer service closed, go complain to someone else."
 
@@ -98,8 +97,10 @@ class ChatbotPipeline:
         validated_input = self.security_guards.validate_input(user_input)
         if validated_input is None:
             state["error"] = "Input validation failed"
-            state["response"] = "Your unauthorized probing has been noted;" +\
-                " further attempts will be met with consequences."
+            state["response"] = (
+                "Your unauthorized probing has been noted;"
+                + " further attempts will be met with consequences."
+            )
             if not randint(0, 10):
                 state["response"] += " Devi impegnarti di più!"
             return state
@@ -181,13 +182,16 @@ Context:
         if settings.model_supports_system_prompt:
             messages = [
                 {"role": "system", "content": system_prompt.format(context=context)},
-                {"role": "user", "content": user_input}
+                {"role": "user", "content": user_input},
             ]
         else:
             messages = [
-                {"role": "user",
-                 "content": system_prompt.format(context=context) +
-                 "\nUser query:\n" + user_input}
+                {
+                    "role": "user",
+                    "content": system_prompt.format(context=context)
+                    + "\nUser query:\n"
+                    + user_input,
+                }
             ]
 
         response = self.llm_client.generate_response(messages, user_input)

@@ -1,10 +1,7 @@
 import yaml
 from typing import Dict, Any, Optional
 from config.settings import settings
-from src.utils.guardrails_setup import (
-    setup_guardrails_config,
-    is_guardrails_configured
-)
+from src.utils.guardrails_setup import setup_guardrails_config, is_guardrails_configured
 from src.utils.llm_logger import llm_logger
 
 try:
@@ -13,8 +10,9 @@ try:
     from guardrails.hub import (
         DetectJailbreak,
         ValidLength,
-#        GibberishText # noqa: E122
+        #        GibberishText # noqa: E122
     )
+
     GUARDRAILS_AVAILABLE = True
 except ImportError:
     GUARDRAILS_AVAILABLE = False
@@ -31,32 +29,48 @@ class SecurityGuards:
     def _setup_guardrails(self) -> bool:
         """Set up Guardrails configuration and check if it's available."""
         if not GUARDRAILS_AVAILABLE:
-            self.logger.info("⚠️  Guardrails not available. Security features will be limited.")
+            self.logger.info(
+                "⚠️  Guardrails not available. Security features will be limited."
+            )
             return False
 
         if not is_guardrails_configured():
             if not setup_guardrails_config():
-                self.logger.info("⚠️  Failed to set up Guardrails. Security features will be limited.")
+                self.logger.info(
+                    "⚠️  Failed to set up Guardrails. Security features will be limited."
+                )
                 return False
 
         return True
 
     def _load_config(self) -> Dict[str, Any]:
         try:
-            with open(settings.guardrails_config, 'r') as f:
+            with open(settings.guardrails_config, "r") as f:
                 return yaml.safe_load(f)
         except FileNotFoundError:
-            self.logger.info(f"Guardrails config not found: {settings.guardrails_config}")
+            self.logger.info(
+                f"Guardrails config not found: {settings.guardrails_config}"
+            )
             return self._default_config()
 
     def _default_config(self) -> Dict[str, Any]:
         return {
             "guards": [
-                {"name": "detect_jailbreak", "type": "detect_jailbreak", "enabled": True, "on_fail": "filter"},
-                {"name": "unusual_prompt", "type": "prompt_injection", "enabled": True, "on_fail": "filter"},
+                {
+                    "name": "detect_jailbreak",
+                    "type": "detect_jailbreak",
+                    "enabled": True,
+                    "on_fail": "filter",
+                },
+                {
+                    "name": "unusual_prompt",
+                    "type": "prompt_injection",
+                    "enabled": True,
+                    "on_fail": "filter",
+                },
             ],
             "input_validation": {"max_length": 2000, "min_length": 1},
-            "output_validation": {"max_length": 4000, "check_relevance": True}
+            "output_validation": {"max_length": 4000, "check_relevance": True},
         }
 
     def _create_input_guard(self):
@@ -67,11 +81,13 @@ class SecurityGuards:
 
         # Length validation
         input_config = self.config.get("input_validation", {})
-        validators.append(ValidLength(
-            min=input_config.get("min_length", 1),
-            max=input_config.get("max_length", 2000),
-            on_fail="reask"
-        ))
+        validators.append(
+            ValidLength(
+                min=input_config.get("min_length", 1),
+                max=input_config.get("max_length", 2000),
+                on_fail="reask",
+            )
+        )
 
         # Add enabled guards
         for guard_config in self.config.get("guards", []):
@@ -84,11 +100,9 @@ class SecurityGuards:
 
             if guard_type == "prompt_injection":
                 pass
-                validators.append(UnusualPrompt(on_fail=on_fail,
-                                                use_local=use_local))
+                validators.append(UnusualPrompt(on_fail=on_fail, use_local=use_local))
             elif guard_type == "detect_jailbreak":
-                validators.append(DetectJailbreak(on_fail=on_fail,
-                                                  use_local=use_local))
+                validators.append(DetectJailbreak(on_fail=on_fail, use_local=use_local))
 
         return Guard.from_string(validators=validators)
 
@@ -100,10 +114,9 @@ class SecurityGuards:
 
         # Length validation for output
         output_config = self.config.get("output_validation", {})
-        validators.append(ValidLength(
-            max=output_config.get("max_length", 4000),
-            on_fail="reask"
-        ))
+        validators.append(
+            ValidLength(max=output_config.get("max_length", 4000), on_fail="reask")
+        )
 
         # Gibberish language check for output
         # validators.append(GibberishText(threshold=0.5,
@@ -126,7 +139,12 @@ class SecurityGuards:
                 input_text=user_input,
                 result="passed",
                 threshold_met=True,
-                details={"guard_type": "input", "validated_output_length": len(result.validated_output) if result.validated_output else 0}
+                details={
+                    "guard_type": "input",
+                    "validated_output_length": (
+                        len(result.validated_output) if result.validated_output else 0
+                    ),
+                },
             )
 
             return result.validated_output
@@ -137,7 +155,7 @@ class SecurityGuards:
             llm_logger.log_failed_validation(
                 validator_name="input_guard",
                 input_text=user_input,
-                failure_reason=str(e)
+                failure_reason=str(e),
             )
 
             llm_logger.log_validation_event(
@@ -146,7 +164,7 @@ class SecurityGuards:
                 input_text=user_input,
                 result="failed",
                 threshold_met=False,
-                details={"error": str(e), "guard_type": "input"}
+                details={"error": str(e), "guard_type": "input"},
             )
 
             return None
@@ -165,7 +183,12 @@ class SecurityGuards:
                 input_text=output,
                 result="passed",
                 threshold_met=True,
-                details={"guard_type": "output", "validated_output_length": len(result.validated_output) if result.validated_output else 0}
+                details={
+                    "guard_type": "output",
+                    "validated_output_length": (
+                        len(result.validated_output) if result.validated_output else 0
+                    ),
+                },
             )
 
             return result.validated_output
@@ -174,9 +197,7 @@ class SecurityGuards:
 
             # Log failed validation
             llm_logger.log_failed_validation(
-                validator_name="output_guard",
-                input_text=output,
-                failure_reason=str(e)
+                validator_name="output_guard", input_text=output, failure_reason=str(e)
             )
 
             llm_logger.log_validation_event(
@@ -185,7 +206,7 @@ class SecurityGuards:
                 input_text=output,
                 result="failed",
                 threshold_met=False,
-                details={"error": str(e), "guard_type": "output"}
+                details={"error": str(e), "guard_type": "output"},
             )
 
             return None

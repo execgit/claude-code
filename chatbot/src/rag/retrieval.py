@@ -35,8 +35,8 @@ class RAGRetriever:
         # Combine retrieved chunks into context
         context_parts = []
         for i, result in enumerate(results):
-            source = result['metadata'].get('filename', 'Unknown')
-            content = result['content']
+            source = result["metadata"].get("filename", "Unknown")
+            content = result["content"]
             context_parts.append(f"[Source: {source}]\n{content}")
 
         return "\n\n---\n\n".join(context_parts)
@@ -45,5 +45,5 @@ class RAGRetriever:
         return {
             "document_count": self.embedding_service.get_collection_count(),
             "documents_path": settings.documents_path,
-            "embedding_model": settings.embedding_model
+            "embedding_model": settings.embedding_model,
         }

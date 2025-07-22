@@ -11,7 +11,7 @@ class MarkdownDocumentProcessor:
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=settings.chunk_size,
             chunk_overlap=settings.chunk_overlap,
-            separators=["\n\n", "\n", " ", ""]
+            separators=["\n\n", "\n", " ", ""],
         )
 
     def load_documents(self) -> List[Document]:
@@ -24,22 +24,23 @@ class MarkdownDocumentProcessor:
 
         for md_file in documents_path.glob("**/*.md"):
             try:
-                with open(md_file, 'r', encoding='utf-8') as f:
+                with open(md_file, "r", encoding="utf-8") as f:
                     content = f.read()
 
                 # Convert markdown to plain text for better chunking
                 html = markdown.markdown(content)
                 # Simple HTML tag removal for plain text
                 import re
-                text = re.sub(r'<[^>]+>', '', html)
+
+                text = re.sub(r"<[^>]+>", "", html)
 
                 doc = Document(
                     page_content=text,
                     metadata={
                         "source": str(md_file),
                         "filename": md_file.name,
-                        "type": "markdown"
-                    }
+                        "type": "markdown",
+                    },
                 )
                 documents.append(doc)
 

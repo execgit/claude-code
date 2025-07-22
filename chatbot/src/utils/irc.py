@@ -3,18 +3,17 @@ import irc.strings
 
 from config.settings import settings
 
-DEFAULT_RESPONSE = "Divano Divino automated support. " +\
-    "State your issue via PRIVMSG."
+DEFAULT_RESPONSE = "Divano Divino automated support. " + "State your issue via PRIVMSG."
 
 
 class IrcBot(irc.bot.SingleServerIRCBot):
     def __init__(self, message_handler):
         irc.bot.SingleServerIRCBot.__init__(
-            self, [(settings.irc_server,
-                    settings.irc_port,
-                    settings.irc_password)],
+            self,
+            [(settings.irc_server, settings.irc_port, settings.irc_password)],
             settings.irc_nick,
-            settings.irc_nick)
+            settings.irc_nick,
+        )
         self.channel = settings.irc_channel
         self.message_handler = message_handler
 
@@ -28,7 +27,7 @@ class IrcBot(irc.bot.SingleServerIRCBot):
         nick = e.source.nick
         c = self.connection
 
-        response = self.message_handler(''.join(e.arguments))
+        response = self.message_handler("".join(e.arguments))
         for line in response.splitlines():
             c.notice(nick, line)
 

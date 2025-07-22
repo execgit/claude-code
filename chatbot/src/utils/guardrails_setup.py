@@ -8,7 +8,9 @@ def setup_guardrails_config():
     This is required for Guardrails to function properly.
     """
     if not settings.guardrails_api_key or not settings.guardrails_id:
-        print("Warning: GUARDRAILS_API_KEY and GUARDRAILS_ID environment variables not set.")
+        print(
+            "Warning: GUARDRAILS_API_KEY and GUARDRAILS_ID environment variables not set."
+        )
         print("Guardrails security features will be disabled.")
         return False
 
@@ -22,7 +24,7 @@ use_remote_inferencing=false
 """
 
     try:
-        with open(guardrails_config_path, 'w') as f:
+        with open(guardrails_config_path, "w") as f:
             f.write(config_content)
         print(f"✅ Guardrails configuration created at {guardrails_config_path}")
         return True

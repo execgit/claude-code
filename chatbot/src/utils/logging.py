@@ -10,7 +10,7 @@ def setup_logger(name: str = "chatbot", level: str = "INFO") -> logging.Logger:
 
     # Create formatter
     formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
 
     # Console handler

@@ -15,13 +15,31 @@ logger = setup_logger(__name__)
 
 
 def main():
-    parser = argparse.ArgumentParser(description="LLM-based chatbot with RAG and guardrails")
-    parser.add_argument("--init-kb", action="store_true", help="Initialize knowledge base from documents")
-    parser.add_argument("--kb-info", action="store_true", help="Show knowledge base information")
-    parser.add_argument("--irc-mode", action="store_true", help="Get messages from IRC instead of command line")
-    parser.add_argument("--usage-report", action="store_true", help="Show token usage report")
-    parser.add_argument("--security-report", action="store_true", help="Show security events report")
-    parser.add_argument("--hours", type=int, default=24, help="Hours back for reports (default: 24)")
+    parser = argparse.ArgumentParser(
+        description="LLM-based chatbot with RAG and guardrails"
+    )
+    parser.add_argument(
+        "--init-kb",
+        action="store_true",
+        help="Initialize knowledge base from documents",
+    )
+    parser.add_argument(
+        "--kb-info", action="store_true", help="Show knowledge base information"
+    )
+    parser.add_argument(
+        "--irc-mode",
+        action="store_true",
+        help="Get messages from IRC instead of command line",
+    )
+    parser.add_argument(
+        "--usage-report", action="store_true", help="Show token usage report"
+    )
+    parser.add_argument(
+        "--security-report", action="store_true", help="Show security events report"
+    )
+    parser.add_argument(
+        "--hours", type=int, default=24, help="Hours back for reports (default: 24)"
+    )
     args = parser.parse_args()
 
     try:
@@ -64,7 +82,7 @@ def main():
                 try:
                     user_input = input("\nUser: ").strip()
 
-                    if user_input.lower() in ['quit', 'exit', 'q']:
+                    if user_input.lower() in ["quit", "exit", "q"]:
                         print("Goodbye!")
                         break
 
@@ -72,8 +90,8 @@ def main():
                         continue
 
                     # Get rid of weird characters
-                    user_input = user_input.encode('utf-8', 'ignore')
-                    user_input = user_input.decode('utf-8')
+                    user_input = user_input.encode("utf-8", "ignore")
+                    user_input = user_input.decode("utf-8")
 
                     # Process message through pipeline
                     response = chatbot.process_message(user_input)

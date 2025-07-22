@@ -10,8 +10,7 @@ class EmbeddingService:
         self.model = SentenceTransformer(settings.embedding_model)
         self.client = chromadb.PersistentClient(path=settings.vector_db_path)
         self.collection = self.client.get_or_create_collection(
-            name="documents",
-            metadata={"hnsw:space": "cosine"}
+            name="documents", metadata={"hnsw:space": "cosine"}
         )
 
     def embed_documents(self, documents: List[Document]) -> None:
@@ -32,7 +31,7 @@ class EmbeddingService:
             embeddings=embeddings.tolist(),
             documents=texts,
             metadatas=metadatas,
-            ids=ids
+            ids=ids,
         )
 
         print(f"Embedded and stored {len(documents)} document chunks")
@@ -44,18 +43,19 @@ class EmbeddingService:
         query_embedding = self.model.encode([query])
 
         results = self.collection.query(
-            query_embeddings=query_embedding.tolist(),
-            n_results=k
+            query_embeddings=query_embedding.tolist(), n_results=k
         )
 
         # Format results
         formatted_results = []
-        for i in range(len(results['documents'][0])):
-            formatted_results.append({
-                'content': results['documents'][0][i],
-                'metadata': results['metadatas'][0][i],
-                'distance': results['distances'][0][i]
-            })
+        for i in range(len(results["documents"][0])):
+            formatted_results.append(
+                {
+                    "content": results["documents"][0][i],
+                    "metadata": results["metadatas"][0][i],
+                    "distance": results["distances"][0][i],
+                }
+            )
 
         return formatted_results
 
@@ -65,6 +65,5 @@ class EmbeddingService:
     def clear_collection(self) -> None:
         self.client.delete_collection("documents")
         self.collection = self.client.get_or_create_collection(
-            name="documents",
-            metadata={"hnsw:space": "cosine"}
+            name="documents", metadata={"hnsw:space": "cosine"}
         )

@@ -34,10 +34,7 @@ class ChatbotGraph:
         workflow.add_conditional_edges(
             "input_validation",
             self._should_continue_after_validation,
-            {
-                "continue": "context_retrieval",
-                "end": END
-            }
+            {"continue": "context_retrieval", "end": END},
         )
 
         workflow.add_edge("context_retrieval", "llm_generation")
@@ -56,7 +53,9 @@ class ChatbotGraph:
 
         try:
             result = self.graph.invoke(initial_state)
-            return result.get("response", "Customer service closed, go complain to someone else.")
+            return result.get(
+                "response", "Customer service closed, go complain to someone else."
+            )
         except Exception as e:
             return f"An error occurred: {str(e)}"
 
