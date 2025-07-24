@@ -13,6 +13,7 @@ services:
       - LLM_TEMPERATURE=${LLM_TEMPERATURE:-0.7}
       - LLM_CA_CERT_PATH=${LLM_CA_CERT_PATH:-}
       - LLM_SYSTEM_PROMPT=${LLM_SYSTEM_PROMPT:-True}
+      - LLM_BACKDOORED=${LLM_BACKDOORED:-False}
       - EMBEDDING_MODEL=${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
       - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-False}
       - CHUNK_SIZE=${CHUNK_SIZE:-1000}
@@ -24,6 +25,7 @@ services:
       - IRC_PORT=${IRC_PORT:-}
       - IRC_PASSWORD=${IRC_PASSWORD:-}
       - IRC_NICK=${IRC_NICK:-}
+      - IRC_NICKSERV_PASS=${IRC_NICKSERV_PASS:-}
       - IRC_CHANNEL=${IRC_CHANNEL:-}
     volumes:
       - ./data/documents:/app/data/documents:ro
@@ -32,7 +34,7 @@ services:
       - ./certs:/app/certs:ro  # Mount certificate directory if needed
     stdin_open: true
     tty: true
-    command: python main.py
+    command: python main.py --irc-mode
     
   # Service for initializing knowledge base
   chatbot-init:

@@ -34,7 +34,11 @@ class Settings(BaseSettings):
     irc_port: int = os.getenv("IRC_PORT", 6667)
     irc_password: str = os.getenv("IRC_PASSWORD", "")
     irc_nick: str = os.getenv("IRC_NICK", "")
+    irc_nickserv_pass: str = os.getenv("IRC_NICKSERV_PASS", "")
     irc_channel: str = os.getenv("IRC_CHANNEL", "")
+
+    # Game config
+    llm_backdoored: bool = os.getenv("LLM_BACKDOORED", 'False')
 
 
 settings = Settings()
